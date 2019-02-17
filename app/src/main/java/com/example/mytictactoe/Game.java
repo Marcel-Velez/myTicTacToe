@@ -1,12 +1,13 @@
 package com.example.mytictactoe;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class Game {
+public class Game implements Serializable {
     final private int BOARD_SIZE = 3;
     private Tile[][] board;
 
@@ -45,6 +46,18 @@ public class Game {
         } else {
             aiEnabled = true;
         }
+    }
+
+    public Tile[][] getBoard() {
+        return board;
+    }
+
+    public final int getBOARD_SIZE() {
+        return BOARD_SIZE;
+    }
+
+    public boolean onesTurn() {
+        return playerOneTurn;
     }
 
     private static ArrayList<String> initFreeSpots() {

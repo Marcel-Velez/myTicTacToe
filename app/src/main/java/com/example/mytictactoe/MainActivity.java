@@ -22,7 +22,44 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        game = new Game();
+        if (savedInstanceState != null) {
+            game = (Game) savedInstanceState.get("game");
+            loadGame();
+        } else {
+            game = new Game();
+        }
+    }
+
+    private void loadGame() {
+        Tile[][] board = game.getBoard();
+        String text;
+        TextView mainText = (TextView) getView("mainText");
+        if (game.stillInProgress()) {
+            text = game.onesTurn() ? "Player 1's Turn" : "Player 2's Turn";
+        } else {
+            text = game.onesTurn() ? "PLAYER 2 WON!" : "PLAYER 1 WON!";
+            unableButtons();
+        }
+        mainText.setText(text);
+
+        for (int i = 0; i < game.getBOARD_SIZE(); i++) {
+            for (int j = 0; j < game.getBOARD_SIZE(); j++) {
+                Button clicked = (Button) getView("button" + Integer.toString(i*3+j));
+                if (board[j][i] == Tile.CROSS) {
+                    clicked.setText("X");
+                    clicked.setTextColor(Color.parseColor("#0066ff"));
+                } else if (board[j][i] == Tile.CIRCLE) {
+                    clicked.setText("O");
+                    clicked.setTextColor(Color.parseColor("#ff0000"));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putSerializable("game", game);
     }
 
     public View getView(String name) {
@@ -136,16 +173,10 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder dialog=new AlertDialog.Builder(this);
         dialog.setMessage(message);
         dialog.setTitle(title);
-        dialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton("CLOSE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(),"Yes is clicked",Toast.LENGTH_LONG).show();
-            }
-        });
-        dialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(),"cancel is clicked",Toast.LENGTH_LONG).show();
+               // Toast.makeText(getApplicationContext(),"Yes is clicked",Toast.LENGTH_LONG).show();
             }
         });
         AlertDialog alertDialog=dialog.create();
@@ -159,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         drawInfo += "Moves played: " + stats.get("total moves") + '\n';
         drawInfo += "Player one wins: " + stats.get("player one wins") + '\n';
         drawInfo += "Player two wins: " + stats.get("player two wins") + '\n';
-        drawInfo += "lost to ai: " + stats.get("ai wins") + '\n';
+        drawInfo += "Lost to ai: " + stats.get("ai wins") + '\n';
         drawInfo += "A.I. defeated: " + stats.get("ai defeated") + '\n';
         drawInfo += "A.I. enabled: " + Boolean.toString(game.aiEnabled) + '\n';
         alertDialog("Statistics",drawInfo);
